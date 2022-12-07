@@ -17,15 +17,15 @@ engine_external_ip: "{{ groups.engine[0] }}"  # Read from hosts file.
 engine_internal_ip: "{{ groups.engine[0] }}"  # Change if dual-NIC'd.
 
 # masscan - installation requires a minimum amount of 1 GB of memory.
-install_masscan_on_engine: True
+install_masscan_on_engine: true
 
 # If you want to set one standard API token for all engines
 # instead of having to logging into every engine and updating engine/engine_config.json
 # This is less secure!
-utilize_static_api_token_across_engines: False
+utilize_static_api_token_across_engines: false
 
 # timezone used for the server's OS.
 timezone_server: UTC
 
 # timezone used for the Django application's TIME_ZONE setting.  Should be your local timezone.
-timezone_django: America/Chicago
+timezone_django: Europe/Moscow

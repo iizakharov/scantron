@@ -1,5 +1,8 @@
 ---
 - hosts: console
+  environment:
+    http_proxy: http://10.28.73.1:8090
+    https_proxy: http://10.28.73.1:8090
   roles:
     - name: common
       tags: [ common ]
