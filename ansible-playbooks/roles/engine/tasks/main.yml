@@ -7,6 +7,11 @@
     pkg: "{{ install_packages }}"
     state: latest
 
+- name: Install Python packages.
+  apt:
+    pkg: "{{ pyhton_packages }}"
+    state: latest
+
 - name: Install masscan packages.
   apt:
     pkg: "{{ masscan_install_packages }}"
@@ -65,6 +70,8 @@
     group: root
     mode: 0700
     backup: false
+    async: 60
+    poll: 60
   # Only required if re-running Ansible on an engine that already has comms with console.
   # Ansible will get angry since it can't chown /root/engine/scan_results and /root/engine/target_files
   ignore_errors: yes
@@ -97,11 +104,42 @@
   local_action: copy content="engine-{{ random_engine_number }}" dest="group_vars/{{ engine_external_ip }}.txt"
   when: utilize_static_api_token_across_engines
 
+#- name: rsync python3.6 files to server.
+#  synchronize:
+#    src: files/Python-3.6.9
+#    dest: "/home/{{ non_root_user }}"
+#  when: not "3.6" in ansible_python_version
+#  tags: update_code
+#
+#- name: Running ./configure for Python3.6
+#  command: '"{{ item }}" chdir=/home/{{ non_root_user }}/Python-3.6.9/'
+#  with_items:
+#    - ./configure
+#    - make
+#- name: Running "make" for Python3.6
+#  command: '"{{ item }}" chdir=/home/{{ non_root_user }}/Python-3.6.9/'
+#  with_items:
+#    - make
+#  when: not "3.6" in ansible_python_version
+#- name: Running "make install" for Python3.6
+#  command: 'make altinstall chdir=/home/{{ non_root_user }}/Python-3.6.9/'
+#  when: not "3.6" in ansible_python_version
+
+- name: Upgrade pip to latest version.
+  environment:
+    http_proxy: http://10.28.73.1:8090
+    https_proxy: http://10.28.73.1:8090
+  command: "python3 -m pip install --upgrade pip"
+  ignore_errors: yes  # For reruns only.
+
 - name: Create "{{ venv_dir }}" virtualenv directory.
-  command: "virtualenv -p /usr/bin/python3.6 {{ venv_dir }}"
+  command: "python3 -m venv {{ venv_dir }}"
   ignore_errors: yes  # For reruns only.
 
 - name: Install pip requirements.
+  environment:
+    http_proxy: http://10.28.73.1:8090
+    https_proxy: http://10.28.73.1:8090
   pip:
     requirements: "{{ engine_dir }}/requirements.txt"
     virtualenv: "{{ venv_dir }}"

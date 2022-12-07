@@ -9,8 +9,22 @@ install_packages:
   - nmap
   - python-dev
   - python3-pip
-  - python-virtualenv
+  - python3-virtualenv
   - screen
+
+pyhton_packages:
+  - build-essential
+  - checkinstall
+  - libreadline-gplv2-dev
+  - libncursesw5-dev
+  - libssl-dev
+  - libsqlite3-dev
+  - tk-dev
+  - libgdbm-dev
+  - libc6-dev
+  - libbz2-dev
+  - libffi-dev
+  - zlib1g-dev
 
 masscan_install_packages:
   - git
@@ -21,7 +35,7 @@ masscan_install_packages:
 # Python virtual environment.
 engine_dir: /root/engine
 venv_dir: "{{ engine_dir }}/.venv"
-venv_python: "{{ venv_dir }}/bin/python3.6"
+venv_python: "{{ venv_dir }}/bin/python3"
 
 # Additional nmap .nse script file URLs.  Will be saved in /usr/share/nmap/scripts/
 nse_script_urls:
