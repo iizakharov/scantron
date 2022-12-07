@@ -12,11 +12,26 @@ install_packages:
   - postfix
   - postgresql-{{ postgresql_version }}
   - python3-pip
-  - python-dev
-  - python-virtualenv
+  - python3.8-dev
+  - python3-venv
+  - python3-virtualenv
   - python3-psycopg2  # python3-psycopg2 required for Ansible.
   - redis
   - xmlsec1  # SAML support.
+
+pyhton_packages:
+  - build-essential
+  - checkinstall
+  - libreadline-gplv2-dev
+  - libncursesw5-dev
+  - libssl-dev
+  - libsqlite3-dev
+  - tk-dev
+  - libgdbm-dev
+  - libc6-dev
+  - libbz2-dev
+  - libffi-dev
+  - zlib1g-dev
 
 # secrets file
 scantron_secrets: "{{ lookup('file', '../../../console/scantron_secrets.json') | from_json }}"
@@ -37,7 +52,7 @@ postgresql_hba_entries:
 # pip
 scantron_dir: "/home/{{ non_root_user }}/console"
 venv_dir: "{{ scantron_dir }}/.venv"
-venv_python: "{{ venv_dir }}/bin/python3.6"
+venv_python: "{{ venv_dir }}/bin/python3"
 
 # Django
 django_project_name: django_scantron

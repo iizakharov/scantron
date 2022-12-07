@@ -5,7 +5,7 @@
 
 - name: Add postgresql APT repository.
   apt_repository:
-    repo: deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main
+    repo: deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main
     filename: pgdg.list
     state: present
     update_cache: yes
@@ -17,6 +17,11 @@
 - name: Install specified packages.
   apt:
     pkg: "{{ install_packages }}"
+    state: latest
+
+- name: Install Python packages.
+  apt:
+    pkg: "{{ pyhton_packages }}"
     state: latest
 
 - name: Create autossh user.
@@ -95,16 +100,55 @@
 # Misc.
 #######
 - name: rsync console files to server.
-  synchronize:
-    src: ../../../../console
+  copy:
+#    src: ../../../../console
+    src: "/home/zaharovii/project/scantron/console"
     dest: "/home/{{ non_root_user }}"
   tags: update_code
 
+#- name: rsync python3.6 files to server.
+#  synchronize:
+#    src: files/Python-3.6.9
+#    dest: "/home/{{ non_root_user }}"
+#  when: not "3.6" in ansible_python_version
+#  tags: update_code
+#
+#- name: configure python3.6.
+#  command: "/home/{{ non_root_user }}/Python-3.6.9/configure --enable-optimizations"
+#  when: not "3.6" in ansible_python_version
+##  ignore_errors: yes  # For reruns only.
+#
+#- name: Install python3.6.
+#  command: "cd /home/{{ non_root_user }}/Python-3.6.9; make altinstall"
+#  when: not "3.6" in ansible_python_version
+##  ignore_errors: yes  # For reruns only.
+
+#- name: Upgrade pip to latest version.
+#  environment:
+#    http_proxy: http://10.28.73.1:8090
+#    https_proxy: http://10.28.73.1:8090
+#  command: "python3 -m pip install --upgrade pip"
+#  ignore_errors: yes  # For reruns only.
+
 - name: Create "{{ venv_dir }}" virtualenv directory.
-  command: "virtualenv -p /usr/bin/python3.6 {{ venv_dir }}"
+  command: "python3 -m venv {{ venv_dir }}"
   ignore_errors: yes  # For reruns only.
 
+- name: Upgrade pip to latest version
+  environment:
+    http_proxy: http://10.28.73.1:8090
+    https_proxy: http://10.28.73.1:8090
+  pip:
+    name: pip
+    extra_args: --upgrade
+    virtualenv: "{{ venv_dir }}"
+    virtualenv_python: "{{ venv_python }}"
+  register: output
+
 - name: Install pip requirements.
+  environment:
+    http_proxy: http://10.28.73.1:8090
+    https_proxy: http://10.28.73.1:8090
   pip:
     requirements: "{{ scantron_dir }}/requirements/{{ application_environment }}.txt"
     virtualenv: "{{ venv_dir }}"
@@ -114,7 +158,7 @@
 # https://github.com/django-recurrence/django-recurrence/issues/160
 - name: Modify recurrence.js until django-recurrence maintainers address issue 160.
   lineinfile:
-    path: "{{ venv_dir }}/lib/python3.6/site-packages/recurrence/static/recurrence/js/recurrence.js"
+    path: "{{ venv_dir }}/lib/python3.8/site-packages/recurrence/static/recurrence/js/recurrence.js"
     regexp: '        var language_code = recurrence.language_code;'
     line: '        var language_code = "en";'
     backup: yes
@@ -123,7 +167,7 @@
 - name: Update recurrence-widget.js to support hourly frequency.
   copy:
     src: files/site-packages/recurrence/static/recurrence/js/recurrence-widget.js
-    dest: "{{ venv_dir }}/lib/python3.6/site-packages/recurrence/static/recurrence/js/recurrence-widget.js"
+    dest: "{{ venv_dir }}/lib/python3.8/site-packages/recurrence/static/recurrence/js/recurrence-widget.js"
     owner: "{{ non_root_user }}"
     group: "{{ non_root_user }}"
     mode: 0644
@@ -145,6 +189,7 @@
     state: present
   become_user: postgres
   become: yes
+#  become_method: sudo
 
 - name: Configure a new user "{{ scantron_secrets['production']['DATABASE_USER'] }}".
   postgresql_user:
