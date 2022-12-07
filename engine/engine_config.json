@@ -1,7 +1,7 @@
 {
     "scan_engine": "engine1",
-    "api_token": "",
-    "console_address": "https://127.0.0.1",
+    "api_token": "FupX60744Ws2fNnxfUFBwWMf2JUWKBpeDEHOf1",
+    "console_address": "https://10.28.74.20",
     "console_port": 4430,
     "callback_interval_in_seconds": 60,
     "number_of_threads": 8,
